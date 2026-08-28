@@ -30,80 +30,45 @@ input:focus{border-color:#1a5276;outline:none}
 <div class="card">
   <h1>AIBS Employee Check In</h1>
   <div class="site" id="siteName"></div>
-
   <label for="empName">Your name</label>
   <input type="text" id="empName" placeholder="Enter your full name" autocomplete="name">
-
   <div class="btns">
-    <button class="btn btn-in" id="btnIn" onclick="submit('Check In')">CHECK IN</button>
-    <button class="btn btn-out" id="btnOut" onclick="submit('Check Out')">CHECK OUT</button>
+    <button class="btn btn-in" id="btnIn" onclick="doSubmit('Check In')">CHECK IN</button>
+    <button class="btn btn-out" id="btnOut" onclick="doSubmit('Check Out')">CHECK OUT</button>
   </div>
-
   <div class="status" id="status"></div>
   <div class="gps" id="gpsInfo"></div>
 </div>
-
 <script>
-var API = 'https://script.google.com/macros/s/AKfycbwgj7GUllMGsUZRN8dIQ-3PWlWGR_T39ZT6unnr82tYDrbvfWPuNFl2c7Rb26EnMBHpaA/exec';
-var params = new URLSearchParams(window.location.search);
-var site = params.get('site') || 'Wagga Lab';
-document.getElementById('siteName').textContent = site;
-
-var lat = null, lng = null;
-if (navigator.geolocation) {
-  navigator.geolocation.getCurrentPosition(
-    function(p) {
-      lat = p.coords.latitude;
-      lng = p.coords.longitude;
-      document.getElementById('gpsInfo').textContent = 'GPS: ' + lat.toFixed(4) + ', ' + lng.toFixed(4);
-    },
-    function() {
-      document.getElementById('gpsInfo').textContent = 'GPS not available';
-    },
-    {enableHighAccuracy:true, timeout:10000, maximumAge:60000}
-  );
+var API='https://script.google.com/macros/s/AKfycbwgj7GUllMGsUZRN8dIQ-3PWlWGR_T39ZT6unnr82tYDrbvfWPuNFl2c7Rb26EnMBHpaA/exec';
+var params=new URLSearchParams(window.location.search);
+var site=params.get('site')||'Wagga Lab';
+document.getElementById('siteName').textContent=site;
+var lat='',lng='';
+if(navigator.geolocation){
+  navigator.geolocation.getCurrentPosition(function(p){
+    lat=p.coords.latitude.toFixed(6);
+    lng=p.coords.longitude.toFixed(6);
+    document.getElementById('gpsInfo').textContent='GPS: '+lat+', '+lng;
+  },function(){
+    document.getElementById('gpsInfo').textContent='GPS not available';
+  },{enableHighAccuracy:true,timeout:10000,maximumAge:60000});
 }
-
-function submit(checkType) {
-  var name = document.getElementById('empName').value.trim();
-  if (!name) {
-    showStatus('Please enter your name', 'err');
-    document.getElementById('empName').focus();
-    return;
-  }
-  document.getElementById('btnIn').disabled = true;
-  document.getElementById('btnOut').disabled = true;
-  showStatus('Submitting...', 'wait');
-
-  fetch(API, {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({
-      name: name,
-      checkType: checkType,
-      site: site,
-      latitude: lat ? lat.toFixed(6) : '',
-      longitude: lng ? lng.toFixed(6) : ''
-    })
-  }).then(function() {
-    showStatus(checkType === 'Check In' ? 'Checked IN \u2714' : 'Checked OUT \u2714', 'ok');
-    setTimeout(function() {
-      document.getElementById('btnIn').disabled = false;
-      document.getElementById('btnOut').disabled = false;
-    }, 3000);
-  }).catch(function() {
-    showStatus('Error - please try again', 'err');
-    document.getElementById('btnIn').disabled = false;
-    document.getElementById('btnOut').disabled = false;
-  });
+function doSubmit(checkType){
+  var name=document.getElementById('empName').value.trim();
+  if(!name){show('Please enter your name','err');document.getElementById('empName').focus();return;}
+  document.getElementById('btnIn').disabled=true;
+  document.getElementById('btnOut').disabled=true;
+  show('Submitting...','wait');
+  var url=API+'?name='+encodeURIComponent(name)+'&checkType='+encodeURIComponent(checkType)+'&site='+encodeURIComponent(site)+'&lat='+lat+'&lng='+lng+'&t='+Date.now();
+  var img=new Image();
+  img.onload=img.onerror=function(){
+    show(checkType==='Check In'?'Checked IN \u2714':'Checked OUT \u2714','ok');
+    setTimeout(function(){document.getElementById('btnIn').disabled=false;document.getElementById('btnOut').disabled=false;},3000);
+  };
+  img.src=url;
 }
-
-function showStatus(msg, cls) {
-  var el = document.getElementById('status');
-  el.textContent = msg;
-  el.className = 'status ' + cls;
-}
+function show(m,c){var e=document.getElementById('status');e.textContent=m;e.className='status '+c;}
 <\/script>
 </body>
 </html>
