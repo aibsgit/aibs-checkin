@@ -28,12 +28,12 @@ h1{color:#1a5276;font-size:22px;margin-bottom:6px}
     <p class="status">Getting your location...<small>This takes a moment on first use</small></p>
   </div>
   <div id="success" style="display:none">
-    <div class="icon">📍</div>
+    <div class="icon">\ud83d\udccd</div>
     <p class="status">Location captured!</p>
     <p class="status"><small>Redirecting to check-in form...</small></p>
   </div>
   <div id="fallback" style="display:none">
-    <div class="icon">📋</div>
+    <div class="icon">\ud83d\udccb</div>
     <p class="status">Tap below to open the check-in form</p>
     <a class="btn" id="fallbackLink" href="#">Open Check In \u2192</a>
     <p class="note">Location could not be detected \u2014 GPS may be disabled</p>
@@ -46,14 +46,13 @@ var site = params.get('site') || 'Wagga Lab';
 document.getElementById('siteName').textContent = site;
 
 var FORM_BASE = 'https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=Gm-vYa1oA0-LauzNTZ--ieCWJQiN4ghKgU0BCmDSD9NUOVFZQkxBTE1LM0k0NDFaR1dYUkhTMEUzOS4u';
-var LAT_FIELD = 'rec4cd58947bd470a8503aadaecd151a2';
-var LNG_FIELD = 'rdb827cb37ecb482fbe03f158f3eb6a78';
+var NOTES_FIELD = 'r2c62c9053d944fa2ac7a359725664914';
 
 function goToForm(lat, lng) {
   var url = FORM_BASE;
   if (lat !== null && lng !== null) {
-    url += '&' + LAT_FIELD + '=' + encodeURIComponent(lat.toFixed(6));
-    url += '&' + LNG_FIELD + '=' + encodeURIComponent(lng.toFixed(6));
+    var gpsNote = 'GPS: ' + lat.toFixed(6) + ', ' + lng.toFixed(6) + ' | Site: ' + site;
+    url += '&' + NOTES_FIELD + '=' + encodeURIComponent(gpsNote);
   }
   window.location.href = url;
 }
@@ -90,6 +89,6 @@ if (navigator.geolocation) {
 } else {
   showFallback();
 }
-</script>
+<\/script>
 </body>
-</html>
+  </html>
